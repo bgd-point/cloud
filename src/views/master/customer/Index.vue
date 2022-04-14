@@ -13,17 +13,6 @@
           <a
             v-if="$permission.has('create customer')"
             href="javascript:void(0)"
-            class="input-group-prepend"
-            title="add"
-            @click="$refs.addCustomer.open()"
-          >
-            <span class="input-group-text">
-              <i class="fa fa-plus" />
-            </span>
-          </a>
-          <a
-            v-if="$permission.has('create customer')"
-            href="javascript:void(0)"
             title="import"
             class="input-group-prepend"
             @click="$router.push('/master/customer/import')"
@@ -39,6 +28,44 @@
               style="display:none"
               @change="onFileChange"
             >
+          </a>
+          <a
+            v-if="$permission.has('create customer')"
+            href="javascript:void(0)"
+            :disabled="isExportingData"
+            class="input-group-prepend"
+            :style="{
+              'opacity': isExportingData ? 0.3 : 1,
+              'cursor': isExportingData ? 'not-allowed' : 'pointer'
+            }"
+            title="export"
+            @click="exportData"
+          >
+            <span
+              v-if="isExportingData"
+              class="input-group-text"
+            >
+              <i
+                class="fa fa-asterisk fa-spin"
+              />
+            </span>
+            <span
+              v-else
+              class="input-group-text"
+            >
+              <i class="fa fa-download" />
+            </span>
+          </a>
+          <a
+            v-if="$permission.has('create customer')"
+            href="javascript:void(0)"
+            class="input-group-prepend"
+            title="add"
+            @click="$refs.addCustomer.open()"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-plus" />
+            </span>
           </a>
           <p-form-input
             id="search-text"
@@ -284,6 +311,7 @@ export default {
   data () {
     return {
       isLoading: true,
+      isExportingData: false,
       searchText: this.$route.query.search,
       page: this.$route.query.page * 1 || 1,
       limit: 10,
@@ -311,7 +339,25 @@ export default {
     this.lastPage = this.pagination.last_page
   },
   methods: {
-    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
+    ...mapActions('masterCustomer', [
+      'get',
+      'bulkArchive',
+      'bulkActivate',
+      'bulkDelete',
+      'export'
+    ]),
+    async exportData () {
+      if (this.isExportingData) return
+
+      this.isExportingData = true
+
+      const { data: { url } } = await this.export()
+      // const response = await axios.get(url, { responseType: 'blob' })
+
+      window.open(url, '_blank')
+
+      this.isExportingData = false
+    },
     onChoosenBranch (branch) {
 
     },
