@@ -9,6 +9,12 @@
       id="print-stock-correction"
       class="print-stock-correction-container m-2 mb-4 mx-auto"
     >
+      <div
+        v-if="stockCorrection.form.approvalStatus == -1"
+        class="watermark"
+      >
+        Cancelled
+      </div>
       <thead>
         <tr>
           <td>
@@ -207,13 +213,9 @@ export default {
       this.mutableId = null
       this.mutableLabel = null
       this.$emit('choosen', '')
-      this.close()
     },
     open () {
       this.$refs['print-stock-correction'].open()
-    },
-    close () {
-      this.$refs['select-' + this.id].close()
     },
     onClose () {
       this.$emit('close', true)
@@ -222,15 +224,23 @@ export default {
       try {
         const { data: { data: currentLogo } } = await axiosNode.get('/setting/logo')
         this.logoUrl = currentLogo.publicUrl
-      } catch (e) {
-        console.log(e)
-      }
+      } catch (e) {}
     }
   }
 }
 </script>
 
 <style scoped>
+.watermark {
+    position: absolute;
+    opacity: 0.1;
+    color: #c81b1b;
+    font-size: 100px;
+    font-weight: 300px;
+    width: 80%;
+    text-align: center;
+    transform: rotate(-45deg);
+}
 .print-stock-correction-container {
   width: 90%;
   padding: 30px;
@@ -305,6 +315,10 @@ table.table-items, .table-items th, .table-items td {
   }
   #print-stock-correction thead tr td {
     padding-top: 20px;
+  }
+  .watermark {
+    left: 5%;
+    top: 15%;
   }
 }
 </style>
