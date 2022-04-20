@@ -213,13 +213,9 @@ export default {
       this.mutableId = null
       this.mutableLabel = null
       this.$emit('choosen', '')
-      this.close()
     },
     open () {
       this.$refs['print-stock-correction'].open()
-    },
-    close () {
-      this.$refs['select-' + this.id].close()
     },
     onClose () {
       this.$emit('close', true)
@@ -228,9 +224,7 @@ export default {
       try {
         const { data: { data: currentLogo } } = await axiosNode.get('/setting/logo')
         this.logoUrl = currentLogo.publicUrl
-      } catch (e) {
-        console.log(e)
-      }
+      } catch (e) {}
     }
   }
 }

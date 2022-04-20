@@ -6,7 +6,7 @@ import { mount, shallowMount, flushPromises } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import SweetModal from 'sweet-modal-vue/src/plugin.js'
 import VueCookie from 'vue-cookie'
-import axios from "axios";
+import axiosNode from '@/axiosNode'
 
 Vue.use(PointFilter)
 Vue.use(PointDate)
@@ -32,13 +32,11 @@ describe('PrintStockCorrection', () => {
 
   const $t = () => {}
   const vuetify = new Vuetify()
-  const getSettingEndNote = jest.fn()
-
+  const getSettingEndNote = () => {}
+  jest.doMock('@/axiosNode');
+  
   it('show watermark when status rejected', async () => {
-    const mockAxios = jest.genMockFromModule('axios')
-    mockAxios.create = jest.fn(() => mockAxios)
-    jest.spyOn(axios, 'get').mockResolvedValue({ data: "testLogo" })
-
+    axiosNode.get = jest.fn()
     const wrapper = mount(PrintStockCorrection, {
       propsData: {
         stockCorrection: {
@@ -57,20 +55,17 @@ describe('PrintStockCorrection', () => {
           }
         }
       },
-      methods: {
-        getSettingEndNote: getSettingEndNote
-      },
-      mocks:{ $t },
+      mocks:{ $t, getSettingEndNote },
       vuetify,
     })
     wrapper.vm.onClose()
     wrapper.vm.open()
     wrapper.vm.clear()
-    await wrapper.vm.getSettingLogo()
     expect(wrapper.find('.watermark').exists()).toBe(true)
   })
 
   it('not show watermark when status approved', () => {
+    axiosNode.get = jest.fn().mockReturnValue({ data: { data: "Test" } })
     const wrapper = mount(PrintStockCorrection, {
       propsData: {
         stockCorrection: {
@@ -89,10 +84,7 @@ describe('PrintStockCorrection', () => {
           }
         }
       },
-      methods: {
-        getSettingEndNote: getSettingEndNote
-      },
-      mocks:{ $t },
+      mocks:{ $t, getSettingEndNote },
       vuetify,
     })
     expect(wrapper.find('.watermark').exists()).toBe(false)
