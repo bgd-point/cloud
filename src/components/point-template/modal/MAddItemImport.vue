@@ -263,6 +263,10 @@ export default {
               this.$notification.error('Import failed')
             }
           })
+          .catch(err => {
+            this.isSaving = false
+            this.$notification.error(err.message)
+          })
       }
     },
     open () {
