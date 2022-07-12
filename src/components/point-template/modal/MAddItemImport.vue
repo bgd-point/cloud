@@ -216,7 +216,8 @@ export default {
         require_expiry_date: null,
         require_production_number: null,
         group_name: null
-      }
+      },
+      rowDatas: []
     }
   },
   computed: {
@@ -243,6 +244,15 @@ export default {
           this.$notification.error('Field ' + key + ' is required')
         }
       })
+      const duplicateCodes = this.getDuplicateCodes()
+      if (duplicateCodes.length > 0) {
+        duplicateCodes.forEach((el) => {
+          this.$notification.error(`Duplicate data: ${el}`)
+        })
+        this.isSaving = false
+        return
+      }
+
       if (validate) {
         const data = new FormData()
         data.set('file', this.file)
@@ -250,18 +260,21 @@ export default {
           data.set(key, value)
         }
         const payload = data
+        const defaultErrorMessage = 'Import failed'
         this.import(payload)
           .then(response => {
             if (response.data) {
-              this.isSaving = false
               this.$notification.success('Import success <br> Success : ' + response.data.success + '<br> Fail : ' + response.data.fail)
               // Object.assign(this.$data, this.$options.data.call(this))
               this.$emit('imported')
               this.close()
             } else {
-              this.isSaving = false
-              this.$notification.error('Import failed')
+              this.$notification.error(defaultErrorMessage)
             }
+          }).catch((err) => {
+            this.$notification.error(err?.message ?? defaultErrorMessage)
+          }).finally(() => {
+            this.isSaving = false
           })
       }
     },
@@ -290,7 +303,15 @@ export default {
             break
           }
         }
+        this.rowDatas = rows.slice(this.form_code.start_row)
       })
+    },
+    getDuplicateCodes () {
+      return [...new Set(this.rowDatas.map((rowData, i) => {
+        const rowDataCode = rowData[this.form_code.code]
+        const dataFound = this.rowDatas.find((el, k) => el[this.form_code.code] === rowDataCode && i !== k)
+        return dataFound === undefined ? undefined : dataFound[this.form_code.code]
+      }))].filter((el) => el !== undefined)
     }
   }
 }
