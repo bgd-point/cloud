@@ -1,5 +1,7 @@
 # point-cloud
 
+Use node v14
+
 ## Project setup
 ```
 yarn install
