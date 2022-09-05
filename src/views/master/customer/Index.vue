@@ -40,6 +40,14 @@
               @change="onFileChange"
             >
           </a>
+          <span
+            v-if="$permission.has('read customer')"
+            class="input-group-text "
+            @click="exportCustomer()"
+          >
+            <i class="fa fa-download" />
+          </span>
+
           <p-form-input
             id="search-text"
             ref="searchText"
@@ -274,6 +282,7 @@ import PointTable from 'point-table-vue'
 import debounce from 'lodash/debounce'
 import { mapGetters, mapActions } from 'vuex'
 import axios from '@/axios'
+
 export default {
   components: {
     TabMenu,
@@ -318,6 +327,24 @@ export default {
     addFiles () {
       this.$refs.file.click()
     },
+
+    exportCustomer () {
+      axios.post('/master/customer/export', null,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then((response) => {
+        console.log(response)
+        const blob = new Blob([response.data.url])
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = 'file.xlsx'
+        link.click()
+      }).catch(function (error) {
+        self.isLoading = false
+      })
+    },
     onFileChange (e) {
       const files = e.target.files || e.dataTransfer.files
       if (!files.length) {
@@ -338,7 +365,7 @@ export default {
         console.log('Responded')
       }).catch(function (error) {
         self.isLoading = false
-        console.log(error)
+        console.log('Error'.error)
       })
     },
     toggleCheckRow (id) {
