@@ -151,6 +151,16 @@ const actions = {
           reject(error)
         })
     })
+  },
+  export ({ commit }, payload) {
+    return new Promise((resolve, reject) => {
+      api.post(url + '/export', payload)
+        .then(response => {
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+    })
   }
 }
 

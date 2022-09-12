@@ -40,6 +40,21 @@
               @change="onFileChange"
             >
           </a>
+          <span
+            v-if="$permission.has('read customer')"
+            class="input-group-text "
+            @click="exportCustomer"
+          >
+            <i class="fa fa-download" />
+          </span>
+          <ul v-show="downloadLink">
+            <li>
+              <a
+                :href="downloadLink"
+                download
+              >{{ downloadLink }}</a> (expired in 24 hour)
+            </li>
+          </ul>
           <p-form-input
             id="search-text"
             ref="searchText"
@@ -295,7 +310,7 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      downloadLink: ''
     }
   },
   computed: {
@@ -311,12 +326,37 @@ export default {
     this.lastPage = this.pagination.last_page
   },
   methods: {
-    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
+    ...mapActions('masterCustomer', ['get', 'export', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
     onChoosenBranch (branch) {
 
     },
     addFiles () {
       this.$refs.file.click()
+    },
+    exportCustomer () {
+      // const data = new FormData()
+      // axios.post('/master/customers/export', data, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data'
+      //   }
+      // }).then((response) => {
+      //   console.log(response)
+      //   const blob = new Blob([response.data.url])
+      //   const link = document.createElement('a')
+      //   link.href = URL.createObjectURL(blob)
+      //   link.download = 'file.xlsx'
+      //   link.click()
+      // }).catch(function (error) {
+      //   self.isLoading = false
+      // })
+      this.isExporting = true
+      this.export({}).then(response => {
+        this.isExporting = false
+        this.downloadLink = response.data.url
+      }).catch(error => {
+        this.isExporting = false
+        console.log(error)
+      })
     },
     onFileChange (e) {
       const files = e.target.files || e.dataTransfer.files
