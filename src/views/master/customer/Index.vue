@@ -22,6 +22,17 @@
             </span>
           </a>
           <a
+            v-if="$permission.has('read customer')"
+            href="javascript:void(0)"
+            class="input-group-prepend"
+            title="export"
+            @click="exportCustomer"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
+          <a
             v-if="$permission.has('create customer')"
             href="javascript:void(0)"
             title="import"
@@ -498,6 +509,21 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    exportCustomer () {
+      this.isLoading = true
+      axios.post('/master/customers/export')
+        .then(resp => {
+          this.isLoading = false
+          const link = document.createElement('a')
+          link.href = resp.data.data.url
+          link.download = resp.data.data.file_name
+          link.click()
+          URL.revokeObjectURL(link.href)
+        })
+        .catch(err => {
+          this.isLoading = false
+        })
     }
   }
 }
