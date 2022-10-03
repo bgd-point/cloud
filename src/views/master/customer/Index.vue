@@ -163,14 +163,126 @@
                 #
               </th>
               <th width="50px" />
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Branch</th>
-              <th>Group</th>
-              <th>Pricing Group</th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('code')"
+                >
+                  Code
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isCodeAscending,
+                      'fa fa-sort-desc' : !flagAscending.isCodeAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('name')"
+                >
+                  Name
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isNameAscending,
+                      'fa fa-sort-desc' : !flagAscending.isNameAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('email')"
+                >
+                  Email
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isEmailAscending,
+                      'fa fa-sort-desc' : !flagAscending.isEmailAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('address')"
+                >
+                  Address
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isAddressAscending,
+                      'fa fa-sort-desc' : !flagAscending.isAddressAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('phone')"
+                >
+                  Phone
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isPhoneAscending,
+                      'fa fa-sort-desc' : !flagAscending.isPhoneAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('branch')"
+                >
+                  Branch
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isBranchAscending,
+                      'fa fa-sort-desc' : !flagAscending.isBranchAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('groups')"
+                >
+                  Group
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isGroupAscending,
+                      'fa fa-sort-desc' : !flagAscending.isGroupAscending,
+                    }"
+                  />
+                </a>
+              </th>
+              <th>
+                <a
+                  href="javascript:void(0)"
+                  @click="sortCustomer('pricing_group')"
+                >
+                  Pricing Group
+                  <i
+                    style="margin-left : 4px"
+                    :class="{
+                      'fa fa-sort-asc' : flagAscending.isPricingGroupAscending,
+                      'fa fa-sort-desc' : !flagAscending.isPricingGroupAscending,
+                    }"
+                  />
+                </a>
+              </th>
             </tr>
             <tr
               v-for="(customer, customerIndex) in customers"
@@ -218,7 +330,7 @@
                     class="select-link"
                     @click="$refs.branch.open()"
                   >
-                    {{ customer.branch_name || $t('select') | uppercase }}
+                    {{ customer.branch_name || $t('select')  }}
                   </span> -->
                   {{ customer.branch.name || $t('select') | uppercase }}
                 </span>
@@ -272,7 +384,7 @@ import Breadcrumb from '@/views/Breadcrumb'
 import BreadcrumbMaster from '@/views/master/Breadcrumb'
 import PointTable from 'point-table-vue'
 import debounce from 'lodash/debounce'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import axios from '@/axios'
 export default {
   components: {
@@ -295,7 +407,17 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      flagAscending: {
+        isCodeAscending: true,
+        isNameAscending: true,
+        isEmailAscending: true,
+        isAddressAscending: true,
+        isPhoneAscending: true,
+        isBranchAscending: true,
+        isGroupAscending: true,
+        isPricingGroupAscending: true
+      }
     }
   },
   computed: {
@@ -312,6 +434,7 @@ export default {
   },
   methods: {
     ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
+    ...mapMutations('masterCustomer', ['SORT_CUSTOMERS']),
     onChoosenBranch (branch) {
 
     },
@@ -498,7 +621,171 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    sortCustomer (key) {
+      function compare (a, b, sortKey, ascending, deepKey = '', isKeyArray) {
+        if (isKeyArray) {
+          if (ascending) {
+            for (let i = 0; i < a[sortKey].length; i++) {
+              if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
+                return -1
+              }
+              if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
+                return 1
+              }
+            }
+            return 0
+          }
+          for (let i = 0; i < a[sortKey].length; i++) {
+            if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
+              return -1
+            }
+            if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
+              return 1
+            }
+          }
+
+          return 0
+        }
+        if (typeof a[sortKey] === 'object') {
+          if (ascending) {
+            if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
+              return -1
+            }
+            if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
+              return 1
+            }
+            return 0
+          }
+          if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
+            return -1
+          }
+          if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
+            return 1
+          }
+
+          return 0
+        }
+        if (ascending) {
+          if (a[sortKey] < b[sortKey]) {
+            return -1
+          }
+          if (a[sortKey] > b[sortKey]) {
+            return 1
+          }
+          return 0
+        }
+        if (a[sortKey] > b[sortKey]) {
+          return -1
+        }
+        if (a[sortKey] < b[sortKey]) {
+          return 1
+        }
+
+        return 0
+      }
+      if (key === 'code') {
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isCodeAscending = !this.flagAscending.isCodeAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isCodeAscending)))
+        return
+      }
+      if (key === 'name') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isNameAscending = !this.flagAscending.isNameAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isNameAscending)))
+        return
+      }
+      if (key === 'email') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isEmailAscending = !this.flagAscending.isEmailAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isEmailAscending)))
+        return
+      }
+      if (key === 'address') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isAddressAscending = !this.flagAscending.isAddressAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isAddressAscending)))
+        return
+      }
+      if (key === 'phone') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isPhoneAscending = !this.flagAscending.isPhoneAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isPhoneAscending)))
+        return
+      }
+      if (key === 'branch') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isBranchAscending = !this.flagAscending.isBranchAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isBranchAscending, 'name')))
+        return
+      }
+      if (key === 'groups') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isPricingGroupAscending = true
+        this.flagAscending.isGroupAscending = !this.flagAscending.isGroupAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isGroupAscending, 'name', true)))
+        return
+      }
+      if (key === 'pricing_group') {
+        this.flagAscending.isCodeAscending = true
+        this.flagAscending.isNameAscending = true
+        this.flagAscending.isEmailAscending = true
+        this.flagAscending.isAddressAscending = true
+        this.flagAscending.isPhoneAscending = true
+        this.flagAscending.isBranchAscending = true
+        this.flagAscending.isGroupAscending = true
+        this.flagAscending.isPricingGroupAscending = !this.flagAscending.isPricingGroupAscending
+        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isPricingGroupAscending, 'label')))
+      }
     }
   }
 }
 </script>
+
+<style scooped>
+  a {
+    color: inherit;
+  }
+</style>
