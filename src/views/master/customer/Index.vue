@@ -622,163 +622,108 @@ export default {
     onAdded () {
       this.getCustomerRequest()
     },
-    sortCustomer (key) {
-      function compare (a, b, sortKey, ascending, deepKey = '', isKeyArray) {
-        if (isKeyArray) {
-          if (ascending) {
-            for (let i = 0; i < a[sortKey].length; i++) {
-              if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
-                return -1
-              }
-              if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
-                return 1
-              }
-            }
-            return 0
-          }
+    // Helper sort
+    compare (a, b, sortKey, ascending, deepKey = '', isKeyArray) {
+      if (isKeyArray) {
+        if (ascending) {
           for (let i = 0; i < a[sortKey].length; i++) {
-            if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
+            if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
               return -1
             }
-            if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
+            if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
               return 1
             }
           }
-
           return 0
         }
-        if (typeof a[sortKey] === 'object') {
-          if (ascending) {
-            if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
-              return -1
-            }
-            if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
-              return 1
-            }
-            return 0
+        for (let i = 0; i < a[sortKey].length; i++) {
+          if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
+            return -1
+          }
+          if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
+            return 1
+          }
+        }
+
+        return 0
+      }
+      if (typeof a[sortKey] === 'object') {
+        if (ascending) {
+          if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
+            return -1
           }
           if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
-            return -1
-          }
-          if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
-            return 1
-          }
-
-          return 0
-        }
-        if (ascending) {
-          if (a[sortKey] < b[sortKey]) {
-            return -1
-          }
-          if (a[sortKey] > b[sortKey]) {
             return 1
           }
           return 0
         }
-        if (a[sortKey] > b[sortKey]) {
+        if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
           return -1
         }
-        if (a[sortKey] < b[sortKey]) {
+        if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
           return 1
         }
 
         return 0
       }
+      if (ascending) {
+        if (a[sortKey] < b[sortKey]) {
+          return -1
+        }
+        if (a[sortKey] > b[sortKey]) {
+          return 1
+        }
+        return 0
+      }
+      if (a[sortKey] > b[sortKey]) {
+        return -1
+      }
+      if (a[sortKey] < b[sortKey]) {
+        return 1
+      }
+
+      return 0
+    },
+    setDefaultState () {
+      this.flagAscending.isNameAscending = true
+      this.flagAscending.isEmailAscending = true
+      this.flagAscending.isAddressAscending = true
+      this.flagAscending.isPhoneAscending = true
+      this.flagAscending.isBranchAscending = true
+      this.flagAscending.isGroupAscending = true
+      this.flagAscending.isPricingGroupAscending = true
+      this.flagAscending.isCodeAscending = true
+    },
+    sortCustomer (key) {
+      this.setDefaultState()
+      let tempSortedData = []
       if (key === 'code') {
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isGroupAscending = true
-        this.flagAscending.isPricingGroupAscending = true
         this.flagAscending.isCodeAscending = !this.flagAscending.isCodeAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isCodeAscending)))
-        return
-      }
-      if (key === 'name') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isGroupAscending = true
-        this.flagAscending.isPricingGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isCodeAscending))
+      } else if (key === 'name') {
         this.flagAscending.isNameAscending = !this.flagAscending.isNameAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isNameAscending)))
-        return
-      }
-      if (key === 'email') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isGroupAscending = true
-        this.flagAscending.isPricingGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isNameAscending))
+      } else if (key === 'email') {
         this.flagAscending.isEmailAscending = !this.flagAscending.isEmailAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isEmailAscending)))
-        return
-      }
-      if (key === 'address') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isGroupAscending = true
-        this.flagAscending.isPricingGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isEmailAscending))
+      } else if (key === 'address') {
         this.flagAscending.isAddressAscending = !this.flagAscending.isAddressAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isAddressAscending)))
-        return
-      }
-      if (key === 'phone') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isGroupAscending = true
-        this.flagAscending.isPricingGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isAddressAscending))
+      } else if (key === 'phone') {
         this.flagAscending.isPhoneAscending = !this.flagAscending.isPhoneAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isPhoneAscending)))
-        return
-      }
-      if (key === 'branch') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isGroupAscending = true
-        this.flagAscending.isPricingGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isPhoneAscending))
+      } else if (key === 'branch') {
         this.flagAscending.isBranchAscending = !this.flagAscending.isBranchAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isBranchAscending, 'name')))
-        return
-      }
-      if (key === 'groups') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isPricingGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isBranchAscending, 'name'))
+      } else if (key === 'groups') {
         this.flagAscending.isGroupAscending = !this.flagAscending.isGroupAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isGroupAscending, 'name', true)))
-        return
-      }
-      if (key === 'pricing_group') {
-        this.flagAscending.isCodeAscending = true
-        this.flagAscending.isNameAscending = true
-        this.flagAscending.isEmailAscending = true
-        this.flagAscending.isAddressAscending = true
-        this.flagAscending.isPhoneAscending = true
-        this.flagAscending.isBranchAscending = true
-        this.flagAscending.isGroupAscending = true
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isGroupAscending, 'name', true))
+      } else {
         this.flagAscending.isPricingGroupAscending = !this.flagAscending.isPricingGroupAscending
-        this.SORT_CUSTOMERS(this.customers.sort((a, b) => compare(a, b, key, this.flagAscending.isPricingGroupAscending, 'label')))
+        tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isPricingGroupAscending, 'label'))
       }
+
+      this.SORT_CUSTOMERS(tempSortedData)
     }
   }
 }

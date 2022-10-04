@@ -30,41 +30,7 @@ const getters = {
 
 const mutations = {
   'FETCH_ARRAY' (state, payload) {
-    state.customers = [{
-      id: 1,
-      code: 'AAAA',
-      name: 'Ahmad',
-      email: 'ahmad@gmail.com',
-      address: 'Jl. Ahmad',
-      phone: '080808',
-      branch: {
-        name: 'Aceh'
-      },
-      groups: [
-        { name: 'Aku' },
-        { name: 'Baku' }
-      ],
-      pricing_group: {
-        label: 'Asma'
-      }
-    },
-    {
-      id: 2,
-      code: 'BBBB',
-      name: 'Beni',
-      email: 'beni@gmail.com',
-      address: 'Jl. beni',
-      phone: '010808',
-      branch: {
-        name: 'Bandung'
-      },
-      groups: [
-        { name: 'Bakso' }
-      ],
-      pricing_group: {
-        label: 'Biksu'
-      }
-    }]
+    state.customers = payload.data
     state.pagination = payload.meta
   },
   'FETCH_OBJECT' (state, payload) {
