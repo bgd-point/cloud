@@ -624,79 +624,49 @@ export default {
     },
     // Helper sort
     compare (a, b, sortKey, ascending, deepKey = '', isKeyArray) {
-      if (isKeyArray) {
-        if (ascending) {
-          for (let i = 0; i < a[sortKey].length; i++) {
-            if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
-              return -1
-            }
-            if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
-              return 1
-            }
-          }
-          return 0
-        }
-        for (let i = 0; i < a[sortKey].length; i++) {
-          if (a[sortKey][0][deepKey] > b[sortKey][0][deepKey]) {
-            return -1
-          }
-          if (a[sortKey][0][deepKey] < b[sortKey][0][deepKey]) {
-            return 1
-          }
+      const getArrayValue = (val, key) => {
+        if (val.length === 0) {
+          return ''
         }
 
-        return 0
+        return val[0][key]
       }
-      if (typeof a[sortKey] === 'object') {
-        if (ascending) {
-          if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
-            return -1
-          }
-          if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
-            return 1
-          }
-          return 0
-        }
-        if (a[sortKey][deepKey] > b[sortKey][deepKey]) {
-          return -1
-        }
-        if (a[sortKey][deepKey] < b[sortKey][deepKey]) {
-          return 1
-        }
+      const _a = isKeyArray ? getArrayValue(a[sortKey], deepKey) : typeof a[sortKey] === 'object' ? a[sortKey][deepKey] : a[sortKey]
+      const _b = isKeyArray ? getArrayValue(b[sortKey], deepKey) : typeof b[sortKey] === 'object' ? b[sortKey][deepKey] : b[sortKey]
 
-        return 0
-      }
       if (ascending) {
-        if (a[sortKey] < b[sortKey]) {
+        if (_a < _b) {
           return -1
         }
-        if (a[sortKey] > b[sortKey]) {
+        if (_a > _b) {
           return 1
         }
         return 0
       }
-      if (a[sortKey] > b[sortKey]) {
+      if (_a > _b) {
         return -1
       }
-      if (a[sortKey] < b[sortKey]) {
+      if (_a < _b) {
         return 1
       }
 
       return 0
     },
     setDefaultState () {
-      this.flagAscending.isNameAscending = true
-      this.flagAscending.isEmailAscending = true
-      this.flagAscending.isAddressAscending = true
-      this.flagAscending.isPhoneAscending = true
-      this.flagAscending.isBranchAscending = true
-      this.flagAscending.isGroupAscending = true
-      this.flagAscending.isPricingGroupAscending = true
-      this.flagAscending.isCodeAscending = true
+      this.$set(this.flagAscending, {
+        isCodeAscending: true,
+        isNameAscending: true,
+        isEmailAscending: true,
+        isAddressAscending: true,
+        isPhoneAscending: true,
+        isBranchAscending: true,
+        isGroupAscending: true,
+        isPricingGroupAscending: true
+      })
     },
     sortCustomer (key) {
-      this.setDefaultState()
       let tempSortedData = []
+      this.setDefaultState()
       if (key === 'code') {
         this.flagAscending.isCodeAscending = !this.flagAscending.isCodeAscending
         tempSortedData = this.customers.sort((a, b) => this.compare(a, b, key, this.flagAscending.isCodeAscending))
