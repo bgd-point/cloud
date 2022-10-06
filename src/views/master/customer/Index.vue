@@ -163,17 +163,65 @@
                 #
               </th>
               <th width="50px" />
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Branch</th>
-              <th>Group</th>
-              <th>Pricing Group</th>
+              <SortableColumn
+                column="code"
+                :sort="sort"
+                @click="setSort"
+              >
+                Code
+              </SortableColumn>
+              <SortableColumn
+                column="name"
+                :sort="sort"
+                @click="setSort"
+              >
+                Name
+              </SortableColumn>
+              <SortableColumn
+                column="email"
+                :sort="sort"
+                @click="setSort"
+              >
+                Email
+              </SortableColumn>
+              <SortableColumn
+                column="address"
+                :sort="sort"
+                @click="setSort"
+              >
+                Address
+              </SortableColumn>
+              <SortableColumn
+                column="phone"
+                :sort="sort"
+                @click="setSort"
+              >
+                Phone
+              </SortableColumn>
+              <SortableColumn
+                column="branch.name"
+                :sort="sort"
+                @click="setSort"
+              >
+                Branch
+              </SortableColumn>
+              <SortableColumn
+                column="group"
+                :sort="sort"
+                @click="setSort"
+              >
+                Group
+              </SortableColumn>
+              <SortableColumn
+                column="pricing_group.label"
+                :sort="sort"
+                @click="setSort"
+              >
+                Pricing Group
+              </SortableColumn>
             </tr>
             <tr
-              v-for="(customer, customerIndex) in customers"
+              v-for="(customer, customerIndex) in customersFiltered"
               :key="customerIndex"
               slot="p-body"
               :class="{
@@ -267,6 +315,7 @@
 </template>
 
 <script>
+import SortableColumn from './SortableColumn'
 import TabMenu from './TabMenu'
 import Breadcrumb from '@/views/Breadcrumb'
 import BreadcrumbMaster from '@/views/master/Breadcrumb'
@@ -279,7 +328,8 @@ export default {
     TabMenu,
     Breadcrumb,
     BreadcrumbMaster,
-    PointTable
+    PointTable,
+    SortableColumn
   },
   data () {
     return {
@@ -295,17 +345,58 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      sort: null,
+      // dummy data
+      customersFiltered: [],
+      customers: [
+        {
+          id: 1,
+          code: 'A0001',
+          name: 'Ilman',
+          email: 'ilmankori@gmail.com',
+          address: 'Jl. malioboro nomor 1',
+          phone: '081286130544',
+          branch: {
+            name: 'Branch 1'
+          },
+          groups: [
+            { id: 1, name: 'Group 1' }
+          ],
+          pricing_group: {
+            label: 'Label 1'
+          }
+        },
+        {
+          id: 2,
+          code: 'A0002',
+          name: 'Gugum',
+          email: 'gugum@gmail.com',
+          address: 'Jl. Terusan Buah Batu',
+          phone: '081234545454',
+          branch: {
+            name: 'Branch 2'
+          },
+          groups: [
+            { id: 2, name: 'Group 2' }
+          ],
+          pricing_group: {
+            label: 'Label 2'
+          }
+        }
+      ]
     }
   },
   computed: {
-    ...mapGetters('masterCustomer', ['customers', 'pagination'])
+    ...mapGetters('masterCustomer', ['pagination'])
+    // ...mapGetters('masterCustomer', ['customers', 'pagination'])
   },
   created () {
     this.getCustomerRequest()
     this.$nextTick(() => {
       this.$refs.searchText.setFocus()
     })
+    this.customersFiltered = [...this.customers]
   },
   updated () {
     this.lastPage = this.pagination.last_page
@@ -498,6 +589,27 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    setSort (key) {
+      this.sort = key
+      const [sortProp, desc] = key !== null ? key.split(':') : []
+
+      if (sortProp) {
+        if (sortProp.split('.').length > 1) {
+          const field = key.split('.')
+
+          this.customersFiltered = [...this.customers].sort((a, b) => {
+            const fieldName = desc ? field[1].split(':')[0] : field[1]
+            return desc ? b[field[0]][fieldName].localeCompare(a[field[0]][fieldName]) : a[field[0]][fieldName].localeCompare(b[field[0]][fieldName])
+          })
+        } else {
+          this.customersFiltered = [...this.customers].sort((a, b) => {
+            return desc ? b[sortProp].localeCompare(a[sortProp]) : a[sortProp].localeCompare(b[sortProp])
+          })
+        }
+      } else {
+        this.customersFiltered = this.customers
+      }
     }
   }
 }
