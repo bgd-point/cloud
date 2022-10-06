@@ -206,7 +206,7 @@
                 Branch
               </SortableColumn>
               <SortableColumn
-                column="group"
+                column="groups.name"
                 :sort="sort"
                 @click="setSort"
               >
@@ -361,7 +361,8 @@ export default {
             name: 'Branch 1'
           },
           groups: [
-            { id: 1, name: 'Group 1' }
+            { id: 1, name: 'Group 1' },
+            { id: 3, name: 'Group 4' }
           ],
           pricing_group: {
             label: 'Label 1'
@@ -378,10 +379,30 @@ export default {
             name: 'Branch 2'
           },
           groups: [
-            { id: 2, name: 'Group 2' }
+            { id: 1, name: 'Group 2' },
+            { id: 2, name: 'Group 3' },
+            { id: 3, name: 'Group 4' }
           ],
           pricing_group: {
             label: 'Label 2'
+          }
+        },
+        {
+          id: 3,
+          code: 'A0003',
+          name: 'Deni',
+          email: 'deni@gmail.com',
+          address: 'Jl. Kemayoran',
+          phone: '089502334342',
+          branch: {
+            name: 'Branch 4'
+          },
+          groups: [
+            { id: 1, name: 'Group 1' },
+            { id: 3, name: 'Group 4' }
+          ],
+          pricing_group: {
+            label: 'Label 7'
           }
         }
       ]
@@ -595,12 +616,20 @@ export default {
       const [sortProp, desc] = key !== null ? key.split(':') : []
 
       if (sortProp) {
-        if (sortProp.split('.').length > 1) {
+        if (sortProp.split('.').length > 1) { // check if has child from field param, ex: field1.childField
           const field = key.split('.')
 
           this.customersFiltered = [...this.customers].sort((a, b) => {
-            const fieldName = desc ? field[1].split(':')[0] : field[1]
-            return desc ? b[field[0]][fieldName].localeCompare(a[field[0]][fieldName]) : a[field[0]][fieldName].localeCompare(b[field[0]][fieldName])
+            const fieldName = desc ? field[1].split(':')[0] : field[1] // check if has attr :desc
+
+            const isArray = Array.isArray(b[field[0]]) // check if field is array
+            if (isArray) {
+              for (let i = 0; i < a[field[0]].length; i++) {
+                return desc ? b[field[0]][i][fieldName].localeCompare(a[field[0]][i][fieldName]) : a[field[0]][i][fieldName].localeCompare(b[field[0]][i][fieldName])
+              }
+            } else {
+              return desc ? b[field[0]][fieldName].localeCompare(a[field[0]][fieldName]) : a[field[0]][fieldName].localeCompare(b[field[0]][fieldName])
+            }
           })
         } else {
           this.customersFiltered = [...this.customers].sort((a, b) => {
