@@ -10,106 +10,58 @@
     <div class="row">
       <p-block>
         <div class="input-group block mb-5">
-          <a
-            v-if="$permission.has('create customer')"
-            href="javascript:void(0)"
-            class="input-group-prepend"
-            title="add"
-            @click="$refs.addCustomer.open()"
-          >
-            <span class="input-group-text">
-              <i class="fa fa-plus" />
-            </span>
-          </a>
-          <a
-            v-if="$permission.has('create customer')"
-            href="javascript:void(0)"
-            title="import"
-            class="input-group-prepend"
-            @click="$router.push('/master/customer/import')"
-          >
+          <a v-if="$permission.has('create customer')" href="javascript:void(0)" title="import"
+            class="input-group-prepend" @click="$router.push('/master/customer/import')">
             <span class="input-group-text">
               <i class="fa fa-upload" />
             </span>
 
-            <input
-              id="file"
-              ref="file"
-              type="file"
-              style="display:none"
-              @change="onFileChange"
-            >
+            <input id="file" ref="file" type="file" style="display:none" @change="onFileChange">
           </a>
-          <p-form-input
-            id="search-text"
-            ref="searchText"
-            name="search-text"
-            placeholder="Search"
-            :value="searchText"
-            class="btn-block"
-            @input="filterSearch"
-          />
+          <a v-if="$permission.has('read customer')" href="javascript:void(0)" title="export"
+            class="input-group-prepend" @click="exportCustomer()">
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
+          <a v-if="$permission.has('create customer')" href="javascript:void(0)" class="input-group-prepend" title="add"
+            @click="$refs.addCustomer.open()">
+            <span class="input-group-text">
+              <i class="fa fa-plus" />
+            </span>
+          </a>
+          <p-form-input id="search-text" ref="searchText" name="search-text" placeholder="Search" :value="searchText"
+            class="btn-block" @input="filterSearch" />
         </div>
         <div class="text-center font-size-sm mb-10">
-          <a
-            href="javascript:void(0)"
-            @click="isAdvanceFilter = !isAdvanceFilter"
-          >
+          <a href="javascript:void(0)" @click="isAdvanceFilter = !isAdvanceFilter">
             {{ $t('advance filter') | uppercase }} <i class="fa fa-caret-down" />
           </a>
         </div>
-        <div
-          v-show="isAdvanceFilter"
-          class="card"
-          :class="{ 'fadeIn': isAdvanceFilter }"
-        >
+        <div v-show="isAdvanceFilter" class="card" :class="{ 'fadeIn': isAdvanceFilter }">
           <div class="row">
             <div class="col-sm-3 text-center">
-              <p-form-row
-                id="status"
-                name="status"
-                :label="$t('status')"
-                :is-horizontal="false"
-              >
+              <p-form-row id="status" name="status" :label="$t('status')" :is-horizontal="false">
                 <div slot="body">
-                  <span
-                    class="select-link"
-                    @click="$refs.status.open({ id: statusId, label: statusLabel })"
-                  >
+                  <span class="select-link" @click="$refs.status.open({ id: statusId, label: statusLabel })">
                     {{ statusLabel || $t('select') | uppercase }}
                   </span>
                 </div>
               </p-form-row>
             </div>
             <div class="col-sm-3 text-center">
-              <p-form-row
-                id="pricing-group"
-                name="pricing-group"
-                :label="$t('pricing group')"
-                :is-horizontal="false"
-              >
+              <p-form-row id="pricing-group" name="pricing-group" :label="$t('pricing group')" :is-horizontal="false">
                 <div slot="body">
-                  <span
-                    class="select-link"
-                    @click="$refs.pricingGroup.open()"
-                  >
+                  <span class="select-link" @click="$refs.pricingGroup.open()">
                     {{ pricingGroupLabel || $t('select') | uppercase }}
                   </span>
                 </div>
               </p-form-row>
             </div>
             <div class="col-sm-3 text-center">
-              <p-form-row
-                id="group"
-                name="group"
-                :label="$t('group')"
-                :is-horizontal="false"
-              >
+              <p-form-row id="group" name="group" :label="$t('group')" :is-horizontal="false">
                 <div slot="body">
-                  <span
-                    class="select-link"
-                    @click="$refs.customerGroup.open()"
-                  >
+                  <span class="select-link" @click="$refs.customerGroup.open()">
                     {{ groupLabel || $t('select') | uppercase }}
                   </span>
                 </div>
@@ -120,37 +72,18 @@
         <hr>
         <div>
           <label class="css-control css-control-primary css-checkbox mr-10">
-            <input
-              type="checkbox"
-              class="css-control-input"
-              :checked="isRowsChecked(customers, checkedRow)"
-              @click="toggleCheckRows()"
-            >
+            <input type="checkbox" class="css-control-input" :checked="isRowsChecked(customers, checkedRow)"
+              @click="toggleCheckRows()">
             <span class="css-control-indicator" />
           </label>
-          <span
-            v-show="checkedRow.length > 0"
-            class="mr-15 animated fadeIn"
-          >
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary mr-5"
-              @click="bulkArchiveCustomer()"
-            >
+          <span v-show="checkedRow.length > 0" class="mr-15 animated fadeIn">
+            <button type="button" class="btn btn-sm btn-outline-secondary mr-5" @click="bulkArchiveCustomer()">
               {{ $t('archive') | uppercase }}
             </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary mr-5"
-              @click="bulkActivateCustomer()"
-            >
+            <button type="button" class="btn btn-sm btn-outline-secondary mr-5" @click="bulkActivateCustomer()">
               {{ $t('activate') | uppercase }}
             </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              @click="bulkDeleteCustomer()"
-            >
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="bulkDeleteCustomer()">
               {{ $t('delete') | uppercase }}
             </button>
           </span>
@@ -172,32 +105,19 @@
               <th>Group</th>
               <th>Pricing Group</th>
             </tr>
-            <tr
-              v-for="(customer, customerIndex) in customers"
-              :key="customerIndex"
-              slot="p-body"
-              :class="{
+            <tr v-for="(customer, customerIndex) in customers" :key="customerIndex" slot="p-body" :class="{
+              'bg-gray': customer.archived_at != null,
+              'bg-primary-lighter': isRowChecked(customer.id)
+            }">
+              <th :class="{
                 'bg-gray': customer.archived_at != null,
                 'bg-primary-lighter': isRowChecked(customer.id)
-              }"
-            >
-              <th
-                :class="{
-                  'bg-gray': customer.archived_at != null,
-                  'bg-primary-lighter': isRowChecked(customer.id)
-                }"
-              >
+              }">
                 {{ customerIndex + 1 }}
               </th>
               <td>
-                <p-form-check-box
-                  id="subscibe"
-                  :is-form="false"
-                  name="subscibe"
-                  :checked="isRowChecked(customer.id)"
-                  class="text-center"
-                  @click.native="toggleCheckRow(customer.id)"
-                />
+                <p-form-check-box id="subscibe" :is-form="false" name="subscibe" :checked="isRowChecked(customer.id)"
+                  class="text-center" @click.native="toggleCheckRow(customer.id)" />
               </td>
               <td>
                 <router-link :to="{ name: 'customer.show', params: { id: customer.id }}">
@@ -236,33 +156,14 @@
             </tr>
           </point-table>
         </p-block-inner>
-        <p-pagination
-          :current-page="page"
-          :last-page="lastPage"
-          @updatePage="updatePage"
-        />
+        <p-pagination :current-page="page" :last-page="lastPage" @updatePage="updatePage" />
       </p-block>
     </div>
-    <m-add-customer
-      ref="addCustomer"
-      @added="onAdded"
-    />
-    <m-status
-      ref="status"
-      @choosen="onChoosenStatus"
-    />
-    <m-branch
-      ref="branch"
-      @choosen="onChoosenBranch"
-    />
-    <m-pricing-group
-      ref="pricingGroup"
-      @choosen="onChoosenPricingGroup"
-    />
-    <m-customer-group
-      ref="customerGroup"
-      @choosen="onChoosenGroup"
-    />
+    <m-add-customer ref="addCustomer" @added="onAdded" />
+    <m-status ref="status" @choosen="onChoosenStatus" />
+    <m-branch ref="branch" @choosen="onChoosenBranch" />
+    <m-pricing-group ref="pricingGroup" @choosen="onChoosenPricingGroup" />
+    <m-customer-group ref="customerGroup" @choosen="onChoosenGroup" />
   </div>
 </template>
 
@@ -281,7 +182,7 @@ export default {
     BreadcrumbMaster,
     PointTable
   },
-  data () {
+  data() {
     return {
       isLoading: true,
       searchText: this.$route.query.search,
@@ -301,24 +202,39 @@ export default {
   computed: {
     ...mapGetters('masterCustomer', ['customers', 'pagination'])
   },
-  created () {
+  created() {
     this.getCustomerRequest()
     this.$nextTick(() => {
       this.$refs.searchText.setFocus()
     })
   },
-  updated () {
+  updated() {
     this.lastPage = this.pagination.last_page
   },
   methods: {
     ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
-    onChoosenBranch (branch) {
+    onChoosenBranch(branch) {
 
     },
-    addFiles () {
+    addFiles() {
       this.$refs.file.click()
     },
-    onFileChange (e) {
+    exportCustomer() {
+      axios({
+        url: '/master/customers/export', //your url
+        method: 'POST',
+        data: this.getCustomerParameter(),
+        responseType: 'blob', // important
+      }).then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'customer_export.xlsx'); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+      });
+    },
+    onFileChange(e) {
       const files = e.target.files || e.dataTransfer.files
       if (!files.length) {
         console.log('no files')
@@ -341,14 +257,14 @@ export default {
         console.log(error)
       })
     },
-    toggleCheckRow (id) {
+    toggleCheckRow(id) {
       if (!this.isRowChecked(id)) {
         this.checkedRow.push({ id })
       } else {
         this.checkedRow.splice(this.checkedRow.map((o) => o.id).indexOf(id), 1)
       }
     },
-    toggleCheckRows () {
+    toggleCheckRows() {
       if (!this.isRowsChecked(this.customers, this.checkedRow)) {
         this.customers.forEach(element => {
           if (!this.isRowChecked(element.id)) {
@@ -362,12 +278,12 @@ export default {
         })
       }
     },
-    isRowChecked (id) {
+    isRowChecked(id) {
       return this.checkedRow.some(element => {
         return element.id == id
       })
     },
-    isRowsChecked (haystack, needles) {
+    isRowsChecked(haystack, needles) {
       if (needles.length == 0) {
         return false
       }
@@ -381,7 +297,7 @@ export default {
       }
       return true
     },
-    bulkArchiveCustomer () {
+    bulkArchiveCustomer() {
       this.$alert.confirm(this.$t('archive'), this.$t('confirmation archive message')).then(response => {
         this.bulkArchive({
           customers: this.checkedRow
@@ -391,7 +307,7 @@ export default {
         })
       })
     },
-    bulkActivateCustomer () {
+    bulkActivateCustomer() {
       this.$alert.confirm(this.$t('activate'), this.$t('confirmation activate message')).then(response => {
         this.bulkActivate({
           customers: this.checkedRow
@@ -401,7 +317,7 @@ export default {
         })
       })
     },
-    bulkDeleteCustomer () {
+    bulkDeleteCustomer() {
       this.$alert.confirm(this.$t('delete'), this.$t('confirmation delete message')).then(response => {
         this.bulkDelete({
           customers: this.checkedRow
@@ -411,7 +327,7 @@ export default {
         })
       })
     },
-    onChoosenGroup (option) {
+    onChoosenGroup(option) {
       this.groupId = option.id
       this.groupLabel = option.label
       this.$router.push({
@@ -424,7 +340,7 @@ export default {
       })
       this.getCustomerRequest()
     },
-    onChoosenPricingGroup (option) {
+    onChoosenPricingGroup(option) {
       this.pricingGroupId = option.id
       this.pricingGroupLabel = option.label
       this.$router.push({
@@ -437,7 +353,7 @@ export default {
       })
       this.getCustomerRequest()
     },
-    onChoosenStatus (option) {
+    onChoosenStatus(option) {
       this.statusId = option.id
       this.statusLabel = option.label
       this.$router.push({
@@ -450,14 +366,12 @@ export default {
       })
       this.getCustomerRequest()
     },
-    updatePage (value) {
+    updatePage(value) {
       this.page = value
       this.getCustomerRequest()
     },
-    getCustomerRequest () {
-      this.isLoading = true
-      this.get({
-        params: {
+    getCustomerParameter() {
+      return {
           fields: 'customer.*',
           join: 'address,phone,email',
           sort_by: 'customer.name',
@@ -476,7 +390,12 @@ export default {
           includes: 'groups;pricingGroup;branch',
           limit: this.limit,
           page: this.page
-        }
+        };
+    },
+    getCustomerRequest() {
+      this.isLoading = true
+      this.get({
+        params: this.getCustomerParameter(),
       }).then(response => {
         this.isLoading = false
       }).catch(error => {
@@ -496,7 +415,7 @@ export default {
       this.page = 1
       this.getCustomerRequest()
     }, 300),
-    onAdded () {
+    onAdded() {
       this.getCustomerRequest()
     }
   }
