@@ -347,77 +347,17 @@ export default {
       pricingGroupLabel: null,
       groupLabel: null,
       sort: null,
-      // dummy data
-      customersFiltered: [],
-      customers: [
-        {
-          id: 1,
-          code: 'A0001',
-          name: 'Ilman',
-          email: 'ilmankori@gmail.com',
-          address: 'Jl. malioboro nomor 1',
-          phone: '081286130544',
-          branch: {
-            name: 'Branch 1'
-          },
-          groups: [
-            { id: 1, name: 'Group 1' },
-            { id: 3, name: 'Group 4' }
-          ],
-          pricing_group: {
-            label: 'Label 1'
-          }
-        },
-        {
-          id: 2,
-          code: 'A0002',
-          name: 'Gugum',
-          email: 'gugum@gmail.com',
-          address: 'Jl. Terusan Buah Batu',
-          phone: '081234545454',
-          branch: {
-            name: 'Branch 2'
-          },
-          groups: [
-            { id: 1, name: 'Group 2' },
-            { id: 2, name: 'Group 3' },
-            { id: 3, name: 'Group 4' }
-          ],
-          pricing_group: {
-            label: 'Label 2'
-          }
-        },
-        {
-          id: 3,
-          code: 'A0003',
-          name: 'Deni',
-          email: 'deni@gmail.com',
-          address: 'Jl. Kemayoran',
-          phone: '089502334342',
-          branch: {
-            name: 'Branch 4'
-          },
-          groups: [
-            { id: 1, name: 'Group 1' },
-            { id: 3, name: 'Group 4' }
-          ],
-          pricing_group: {
-            label: 'Label 7'
-          }
-        }
-      ]
+      customersFiltered: []
     }
   },
   computed: {
-    ...mapGetters('masterCustomer', ['pagination'])
-    // ...mapGetters('masterCustomer', ['customers', 'pagination'])
+    ...mapGetters('masterCustomer', ['customers', 'pagination'])
   },
   created () {
     this.getCustomerRequest()
     this.$nextTick(() => {
       this.$refs.searchText.setFocus()
     })
-    this.customersFiltered = [...this.customers]
   },
   updated () {
     this.lastPage = this.pagination.last_page
@@ -591,6 +531,7 @@ export default {
         }
       }).then(response => {
         this.isLoading = false
+        this.customersFiltered = [...this.customers]
       }).catch(error => {
         this.isLoading = false
       })
