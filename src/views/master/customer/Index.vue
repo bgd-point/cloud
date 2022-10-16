@@ -163,17 +163,65 @@
                 #
               </th>
               <th width="50px" />
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Branch</th>
-              <th>Group</th>
-              <th>Pricing Group</th>
+              <SortableColumn
+                column="code"
+                :sort="sort"
+                @click="setSort"
+              >
+                Code
+              </SortableColumn>
+              <SortableColumn
+                column="name"
+                :sort="sort"
+                @click="setSort"
+              >
+                Name
+              </SortableColumn>
+              <SortableColumn
+                column="email"
+                :sort="sort"
+                @click="setSort"
+              >
+                Email
+              </SortableColumn>
+              <SortableColumn
+                column="address"
+                :sort="sort"
+                @click="setSort"
+              >
+                Address
+              </SortableColumn>
+              <SortableColumn
+                column="phone"
+                :sort="sort"
+                @click="setSort"
+              >
+                Phone
+              </SortableColumn>
+              <SortableColumn
+                column="branch.name"
+                :sort="sort"
+                @click="setSort"
+              >
+                Branch
+              </SortableColumn>
+              <SortableColumn
+                column="groups.name"
+                :sort="sort"
+                @click="setSort"
+              >
+                Group
+              </SortableColumn>
+              <SortableColumn
+                column="pricing_group.label"
+                :sort="sort"
+                @click="setSort"
+              >
+                Pricing Group
+              </SortableColumn>
             </tr>
             <tr
-              v-for="(customer, customerIndex) in customers"
+              v-for="(customer, customerIndex) in customersFiltered"
               :key="customerIndex"
               slot="p-body"
               :class="{
@@ -267,6 +315,7 @@
 </template>
 
 <script>
+import SortableColumn from './SortableColumn'
 import TabMenu from './TabMenu'
 import Breadcrumb from '@/views/Breadcrumb'
 import BreadcrumbMaster from '@/views/master/Breadcrumb'
@@ -279,7 +328,8 @@ export default {
     TabMenu,
     Breadcrumb,
     BreadcrumbMaster,
-    PointTable
+    PointTable,
+    SortableColumn
   },
   data () {
     return {
@@ -295,7 +345,9 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      sort: null,
+      customersFiltered: []
     }
   },
   computed: {
@@ -460,7 +512,7 @@ export default {
         params: {
           fields: 'customer.*',
           join: 'address,phone,email',
-          sort_by: 'customer.name',
+          sort_by: 'customer.code',
           filter_like: {
             'customer.code': this.searchText,
             'customer.name': this.searchText,
@@ -479,6 +531,8 @@ export default {
         }
       }).then(response => {
         this.isLoading = false
+        this.customersFiltered = [...this.customers]
+        this.setSort(this.sort)
       }).catch(error => {
         this.isLoading = false
       })
@@ -498,6 +552,35 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    setSort (key) {
+      this.sort = key
+      const [sortProp, desc] = key !== null ? key.split(':') : []
+
+      if (sortProp) {
+        if (sortProp.split('.').length > 1) { // check if has child from field param, ex: field1.childField
+          const field = key.split('.')
+
+          this.customersFiltered = [...this.customers].sort((a, b) => {
+            const fieldName = desc ? field[1].split(':')[0] : field[1] // check if has attr :desc
+
+            const isArray = Array.isArray(b[field[0]]) // check if field is array
+            if (isArray) {
+              for (let i = 0; i < a[field[0]].length; i++) {
+                return desc ? b[field[0]][i][fieldName].localeCompare(a[field[0]][i][fieldName]) : a[field[0]][i][fieldName].localeCompare(b[field[0]][i][fieldName])
+              }
+            } else {
+              return desc ? b[field[0]][fieldName].localeCompare(a[field[0]][fieldName]) : a[field[0]][fieldName].localeCompare(b[field[0]][fieldName])
+            }
+          })
+        } else {
+          this.customersFiltered = [...this.customers].sort((a, b) => {
+            return desc ? b[sortProp].localeCompare(a[sortProp]) : a[sortProp].localeCompare(b[sortProp])
+          })
+        }
+      } else {
+        this.customersFiltered = this.customers
+      }
     }
   }
 }
