@@ -512,7 +512,7 @@ export default {
         params: {
           fields: 'customer.*',
           join: 'address,phone,email',
-          sort_by: 'customer.name',
+          sort_by: 'customer.code',
           filter_like: {
             'customer.code': this.searchText,
             'customer.name': this.searchText,
@@ -532,6 +532,7 @@ export default {
       }).then(response => {
         this.isLoading = false
         this.customersFiltered = [...this.customers]
+        this.setSort(this.sort)
       }).catch(error => {
         this.isLoading = false
       })
