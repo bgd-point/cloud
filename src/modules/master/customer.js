@@ -151,6 +151,16 @@ const actions = {
           reject(error)
         })
     })
+  },
+  exportCustomer ({ commit }) {
+    return new Promise((resolve, reject) => {
+      api.get(url + '/export', { responseType: 'arraybuffer' })
+        .then(response => {
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+    })
   }
 }
 

@@ -40,6 +40,17 @@
               @change="onFileChange"
             >
           </a>
+          <a
+            v-if="$permission.has('export customer')"
+            href="javascript:void(0)"
+            title="import"
+            class="input-group-prepend"
+            @click="exportCustomerExcel"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
           <p-form-input
             id="search-text"
             ref="searchText"
@@ -311,7 +322,7 @@ export default {
     this.lastPage = this.pagination.last_page
   },
   methods: {
-    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
+    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete', 'exportCustomer']),
     onChoosenBranch (branch) {
 
     },
@@ -498,6 +509,18 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    exportCustomerExcel () {
+      this.exportCustomer().then(response => {
+        if (response) {
+          const fileURL = window.URL.createObjectURL(new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
+          const fileLink = document.createElement('a')
+          fileLink.href = fileURL
+          fileLink.setAttribute('download', `customer${Math.random()}.xlsx`)
+          document.body.appendChild(fileLink)
+          fileLink.click()
+        }
+      })
     }
   }
 }
