@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-parsing-error -->
 <template>
   <div>
     <breadcrumb>
@@ -163,14 +164,62 @@
                 #
               </th>
               <th width="50px" />
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Branch</th>
-              <th>Group</th>
-              <th>Pricing Group</th>
+              <Sorting
+
+                name="code"
+                :data="sortedData"
+              >
+                Code
+              </Sorting>
+              <Sorting
+
+                name="name"
+                :data="sortedData"
+              >
+                Name
+              </Sorting>
+              <Sorting
+
+                name="email"
+                :data="sortedData"
+              >
+                Email
+              </Sorting>
+              <Sorting
+
+                name="address"
+                :data="sortedData"
+              >
+                Address
+              </Sorting>
+              <Sorting
+
+                name="phone"
+                :data="sortedData"
+              >
+                Phone
+              </Sorting>
+              <Sorting
+
+                name="branch"
+                :data="sortedData"
+              >
+                Branch
+              </Sorting>
+              <Sorting
+
+                name="group"
+                :data="sortedData"
+              >
+                Group
+              </Sorting>
+              <Sorting
+
+                name="pricing_group"
+                :data="sortedData"
+              >
+                Pricing Group
+              </Sorting>
             </tr>
             <tr
               v-for="(customer, customerIndex) in customers"
@@ -213,21 +262,11 @@
               <td>{{ customer.address }}</td>
               <td>{{ customer.phone }}</td>
               <td>
-                <span v-if="customer.branch">
-                  <!-- <span
-                    class="select-link"
-                    @click="$refs.branch.open()"
-                  >
-                    {{ customer.branch_name || $t('select') | uppercase }}
-                  </span> -->
-                  {{ customer.branch.name || $t('select') | uppercase }}
-                </span>
+                {{ customer.branch.name }}
               </td>
               <td>
-                <template v-for="(group, index) in customer.groups">
-                  {{ group.name }}<template v-if="customer.groups.length != index + 1">
-                    ,
-                  </template>
+                <template v-for="(group) in customer.groups">
+                  {{ group.name }}
                 </template>
               </td>
               <td>
@@ -267,6 +306,7 @@
 </template>
 
 <script>
+import Sorting from '@/components/Sorting'
 import TabMenu from './TabMenu'
 import Breadcrumb from '@/views/Breadcrumb'
 import BreadcrumbMaster from '@/views/master/Breadcrumb'
@@ -276,6 +316,7 @@ import { mapGetters, mapActions } from 'vuex'
 import axios from '@/axios'
 export default {
   components: {
+    Sorting,
     TabMenu,
     Breadcrumb,
     BreadcrumbMaster,
@@ -479,6 +520,7 @@ export default {
         }
       }).then(response => {
         this.isLoading = false
+        this.sortedData = response.data
       }).catch(error => {
         this.isLoading = false
       })
