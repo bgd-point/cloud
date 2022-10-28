@@ -4,9 +4,8 @@
       <breadcrumb-master />
       <span class="breadcrumb-item active">{{ $t('customer') | uppercase }}</span>
     </breadcrumb>
-
+    {{ permission }}
     <tab-menu />
-
     <div class="row">
       <p-block>
         <div class="input-group block mb-5">
@@ -31,7 +30,6 @@
             <span class="input-group-text">
               <i class="fa fa-upload" />
             </span>
-
             <input
               id="file"
               ref="file"
@@ -39,6 +37,17 @@
               style="display:none"
               @change="onFileChange"
             >
+          </a>
+          <a
+            v-if="$permission.has('read customer')"
+            href="javascript:void(0)"
+            class="input-group-prepend"
+            title="add"
+            @click="onClickExport"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
           </a>
           <p-form-input
             id="search-text"
@@ -339,6 +348,22 @@ export default {
       }).catch(function (error) {
         self.isLoading = false
         console.log(error)
+      })
+    },
+    async onClickExport () {
+      const data = {
+        branch_id: this.$store.state.auth.user.branches[0].id
+      }
+      axios.post('/master/customers/export', data, {
+        responseType: 'blob'
+      }).then(response => {
+        console.log(response)
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', 'customers.xlsx')
+        document.body.appendChild(link)
+        link.click()
       })
     },
     toggleCheckRow (id) {
