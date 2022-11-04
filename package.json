@@ -19,6 +19,7 @@
     "bugsnag-vue": "^1.0.1",
     "chart.js": "^2.9.3",
     "core-js": "^3.6.5",
+    "file-saver": "^2.0.5",
     "firebase": "^7.15.1",
     "gmap-vue": "^1.0.0",
     "lodash": "^4.17.11",

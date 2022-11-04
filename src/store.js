@@ -40,4 +40,8 @@ const store = new Vuex.Store({
 
 Vue.store = store
 
+if (window.Cypress) {
+  window.store = store
+}
+
 export default store
