@@ -151,6 +151,16 @@ const actions = {
           reject(error)
         })
     })
+  },
+  export ({ commit }) {
+    return new Promise((resolve, reject) => {
+      api.get(url + '/export', { responseType: 'blob' })
+        .then(response => {
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+    })
   }
 }
 

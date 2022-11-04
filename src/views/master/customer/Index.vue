@@ -40,6 +40,17 @@
               @change="onFileChange"
             >
           </a>
+          <a
+            v-if="$permission.has('read customer')"
+            href="javascript:void(0)"
+            title="export"
+            class="input-group-prepend button-export-customer"
+            @click="exportCustomer()"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
           <p-form-input
             id="search-text"
             ref="searchText"
@@ -311,7 +322,7 @@ export default {
     this.lastPage = this.pagination.last_page
   },
   methods: {
-    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
+    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete', 'export']),
     onChoosenBranch (branch) {
 
     },
@@ -498,6 +509,16 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    exportCustomer () {
+      this.export().then(response => {
+        var FileSaver = require('file-saver')
+        var d = new Date()
+
+        var datestring = d.getDate() + '-' + (d.getMonth() + 1) + '-' + d.getFullYear()
+        var file = new File([response], 'export_customer_' + datestring + '.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        FileSaver.saveAs(file)
+      })
     }
   }
 }
