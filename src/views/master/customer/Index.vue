@@ -163,17 +163,34 @@
                 #
               </th>
               <th width="50px" />
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Branch</th>
-              <th>Group</th>
-              <th>Pricing Group</th>
+              <th @click="sortByHeader('code')">
+                Code
+              </th>
+              <th @click="sortByHeader('name')">
+                Name
+              </th>
+              <th @click="sortByHeader('email')">
+                Email
+              </th>
+              <th @click="sortByHeader('address')">
+                Address
+              </th>
+              <th @click="sortByHeader('phone')">
+                Phone
+              </th>
+              <th @click="sortByHeader('branch_id')">
+                Branch
+              </th>
+              <th @click="sortByHeader('group')">
+                Group
+              </th>
+              <th @click="sortByHeader('pricing_group_id')">
+                Pricing Group
+              </th>
+              <th>Test</th>
             </tr>
             <tr
-              v-for="(customer, customerIndex) in customers"
+              v-for="(customer, customerIndex) in sorted"
               :key="customerIndex"
               slot="p-body"
               :class="{
@@ -200,12 +217,12 @@
                 />
               </td>
               <td>
-                <router-link :to="{ name: 'customer.show', params: { id: customer.id }}">
+                <router-link :to="{ name: 'customer.show', params: { id: customer.id } }">
                   {{ customer.code }}
                 </router-link>
               </td>
               <td>
-                <router-link :to="{ name: 'customer.show', params: { id: customer.id }}">
+                <router-link :to="{ name: 'customer.show', params: { id: customer.id } }">
                   {{ customer.name }}
                 </router-link>
               </td>
@@ -272,6 +289,7 @@ import Breadcrumb from '@/views/Breadcrumb'
 import BreadcrumbMaster from '@/views/master/Breadcrumb'
 import PointTable from 'point-table-vue'
 import debounce from 'lodash/debounce'
+import _ from 'lodash'
 import { mapGetters, mapActions } from 'vuex'
 import axios from '@/axios'
 export default {
@@ -295,11 +313,24 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      sortedCustomers: null,
+      sortKey: ''
     }
   },
   computed: {
-    ...mapGetters('masterCustomer', ['customers', 'pagination'])
+    ...mapGetters('masterCustomer', ['customers', 'pagination']),
+    sorted () {
+      if (this.sortKey == 'name') {
+        return _.orderBy(this.customers, item => item.name.toLowerCase(), 'asc')
+      } else if (this.sortKey == 'address') {
+        return _.orderBy(this.customers, item => item.address.toLowerCase(), 'asc')
+      } else if (this.sortKey == 'group') {
+        return _.orderBy(this.customers, item => item.groups[0].name, 'asc')
+      } else {
+        return _.orderBy(this.customers, this.sortKey, 'asc')
+      }
+    }
   },
   created () {
     this.getCustomerRequest()
@@ -478,6 +509,7 @@ export default {
           page: this.page
         }
       }).then(response => {
+        console.log(response, 'test')
         this.isLoading = false
       }).catch(error => {
         this.isLoading = false
@@ -498,6 +530,10 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    sortByHeader (key) {
+      this.sortKey = key
+      console.log(this.sortKey)
     }
   }
 }
