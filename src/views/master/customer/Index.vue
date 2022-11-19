@@ -13,17 +13,6 @@
           <a
             v-if="$permission.has('create customer')"
             href="javascript:void(0)"
-            class="input-group-prepend"
-            title="add"
-            @click="$refs.addCustomer.open()"
-          >
-            <span class="input-group-text">
-              <i class="fa fa-plus" />
-            </span>
-          </a>
-          <a
-            v-if="$permission.has('create customer')"
-            href="javascript:void(0)"
             title="import"
             class="input-group-prepend"
             @click="$router.push('/master/customer/import')"
@@ -39,6 +28,28 @@
               style="display:none"
               @change="onFileChange"
             >
+          </a>
+          <a
+            v-if="$permission.has('read customer')"
+            href="javascript:void(0)"
+            class="input-group-prepend"
+            title="export"
+            @click="exportData()"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
+          <a
+            v-if="$permission.has('create customer')"
+            href="javascript:void(0)"
+            class="input-group-prepend"
+            title="add"
+            @click="$refs.addCustomer.open()"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-plus" />
+            </span>
           </a>
           <p-form-input
             id="search-text"
@@ -295,7 +306,8 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      downloadLink: null
     }
   },
   computed: {
@@ -311,9 +323,20 @@ export default {
     this.lastPage = this.pagination.last_page
   },
   methods: {
-    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
+    ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete', 'export']),
     onChoosenBranch (branch) {
 
+    },
+    exportData () {
+      self.isLoading = true
+      this.export().then((response) => {
+        this.downloadLink = response.data.url
+        self.isLoading = false
+        window.open(response.data.url, '_blank')
+      }, (error) => {
+        self.isLoading = false
+        console.log(error)
+      })
     },
     addFiles () {
       this.$refs.file.click()
