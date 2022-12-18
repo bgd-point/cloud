@@ -163,14 +163,62 @@
                 #
               </th>
               <th width="50px" />
-              <th>Code</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>Phone</th>
-              <th>Branch</th>
-              <th>Group</th>
-              <th>Pricing Group</th>
+              <th>
+                Code
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('code')"
+                />
+              </th>
+              <th>
+                Name
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('name')"
+                />
+              </th>
+              <th>
+                Email
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('email')"
+                />
+              </th>
+              <th>
+                Address
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('address')"
+                />
+              </th>
+              <th>
+                Phone
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('phone')"
+                />
+              </th>
+              <th>
+                Branch
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('branch')"
+                />
+              </th>
+              <th>
+                Group
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('groups')"
+                />
+              </th>
+              <th>
+                Pricing Group
+                <i
+                  class="fa fa-sort pointer"
+                  @click="sort('pricing_group_id')"
+                />
+              </th>
             </tr>
             <tr
               v-for="(customer, customerIndex) in customers"
@@ -295,7 +343,9 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      currentSort: 'name',
+      currentSortDir: 'asc'
     }
   },
   computed: {
@@ -498,7 +548,35 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    sort (s) {
+      if (s === this.currentSort) {
+        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc'
+      }
+      this.currentSort = s
+      this.sortedFunc()
+    },
+    sortedFunc () {
+      return this.customers.sort((a, b) => {
+        let mod = 1
+        if (this.currentSortDir === 'desc') mod = -1
+        if (this.currentSort === 'groups') {
+          if (a.groups[0].name < b.groups[0].name) return -1 * mod
+          if (a.groups[0].name > b.groups[0].name) return 1 * mod
+        } else {
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * mod
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * mod
+        }
+        return 0
+      })
     }
   }
 }
 </script>
+
+<style scoped>
+.pointer {
+  cursor: pointer;
+  margin-left: 5px;
+}
+</style>
