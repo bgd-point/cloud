@@ -40,6 +40,19 @@
               @change="onFileChange"
             >
           </a>
+
+          <a
+            v-if="$permission.has('create customer')"
+            href="javascript:void(0)"
+            title="export"
+            class="input-group-prepend"
+            @click="exportCustomer"
+          >
+            <!-- $router.push('/master/customer/export') -->
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
           <p-form-input
             id="search-text"
             ref="searchText"
@@ -263,6 +276,16 @@
       ref="customerGroup"
       @choosen="onChoosenGroup"
     />
+
+    <sweet-modal
+      ref="modal"
+      icon="success"
+    >
+      <a
+        :href="downloadUrl"
+        class="btn btn-sm btn-primary"
+      >Download</a>
+    </sweet-modal>
   </div>
 </template>
 
@@ -295,7 +318,8 @@ export default {
       statusId: this.$route.query.statusId,
       statusLabel: null,
       pricingGroupLabel: null,
-      groupLabel: null
+      groupLabel: null,
+      downloadUrl: null
     }
   },
   computed: {
@@ -498,6 +522,21 @@ export default {
     }, 300),
     onAdded () {
       this.getCustomerRequest()
+    },
+    exportCustomer () {
+      //
+
+      var self = this
+      self.isLoading = true
+      axios.get('/master/customers/export').then(function (response, data) {
+        self.isLoading = false
+        var url = response.data.data.url
+        self.downloadUrl = url
+        self.$refs.modal.open('modal')
+      }).catch(function (error) {
+        self.isLoading = false
+        console.log(error)
+      })
     }
   }
 }
