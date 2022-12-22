@@ -13,6 +13,7 @@
     "node": "^14"
   },
   "dependencies": {
+    "js-file-download": "^0.4.12",
     "axios": "^0.19.2",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "bugsnag-js": "^4.7.3",

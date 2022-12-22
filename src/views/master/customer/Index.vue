@@ -24,6 +24,17 @@
           <a
             v-if="$permission.has('create customer')"
             href="javascript:void(0)"
+            class="input-group-prepend"
+            title="export"
+            @click="exportExcel()"
+          >
+            <span class="input-group-text">
+              <i class="fa fa-download" />
+            </span>
+          </a>
+          <a
+            v-if="$permission.has('create customer')"
+            href="javascript:void(0)"
             title="import"
             class="input-group-prepend"
             @click="$router.push('/master/customer/import')"
@@ -267,6 +278,7 @@
 </template>
 
 <script>
+import FileDownload from 'js-file-download'
 import TabMenu from './TabMenu'
 import Breadcrumb from '@/views/Breadcrumb'
 import BreadcrumbMaster from '@/views/master/Breadcrumb'
@@ -314,6 +326,12 @@ export default {
     ...mapActions('masterCustomer', ['get', 'bulkArchive', 'bulkActivate', 'bulkDelete']),
     onChoosenBranch (branch) {
 
+    },
+    exportExcel () {
+      axios.get('/master/customers/export', { responseType: 'blob' })
+        .then((response) => {
+          FileDownload(response.data, 'customers.xlsx')
+        })
     },
     addFiles () {
       this.$refs.file.click()
